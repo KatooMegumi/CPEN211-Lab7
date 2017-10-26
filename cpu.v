@@ -1,21 +1,36 @@
 module cpu(clk,reset,s,load,in,out,N,V,Z,w);
-  input clk, reset, s, load;
-  input [15:0] in;
-  output [15:0] out;
-  output N, V, Z, w;
 
+  input clk, reset, s, load; //load_ir
+  input [15:0] in; //read_data and mdata 
+
+  output [15:0] out; //datapath_out
+  output [1:0] mem_cmd;
+  output [8:0] mem_addr;
+  output N, V, Z, w; //?
+  output [7:0] PC; //?
+
+//lab 6 cpu wires
   wire [15:0] instruction_out;
   wire loada,loadb,loads,loadc,write,asel,bsel;
   wire [2:0] status;
-
   wire [1:0] op, ALUop, shift, vsel;
   wire [2:0] opcode, readnum, writenum, nsel;  
   wire [15:0] sximm5, sximm8; 
-  //The following two wires are temp. set to 0, will be changed in Lab 7/8
-  wire [15:0] mdata = 16'b0;
-  wire [7:0] PC = 8'b0;
 
-  vDFFE #(16) instruct_reg(clk, load , in, instruction_out); //instruction register 
+//added wires for lab 7
+  //wires out from state machine
+  wire addr_sel; 
+  wire load_pc; 
+  wire reset_pc; 
+
+  //top MUX output wire
+  wire [8:0] next_pc
+
+  //output wire for program counter
+  wire [8:0] output_program_counter; 
+
+  //instruction register
+  vDFFE #(16) instruct_reg(clk, load , in, instruction_out); 
  
   instruct_decoder decoder(   .instruction_out(instruction_out),
 			        .nsel(nsel),
@@ -66,10 +81,20 @@ module cpu(clk,reset,s,load,in,out,N,V,Z,w);
 			.sximm5(sximm5),
 			.PC(PC)
   );	
+
+  vDFFE #(9) Program_counter(clk,load_pc,next_pc,output_program_counter);
+
+  // for MUX above program counter
+  assign next_pc = reset_pc ? 9'b0 : (output_program_counter+1'b1);
+ 
+  //Lower MUX
+  assign mem_addr = addr_sel ? output_program_counter : 9'b0;
+
   //Now assign N,V,Z the values from status we get from datapath 
   assign N = status[0];
   assign V = status[1]; 
   assign Z = status[2];  
+  
 endmodule
 
 module instruct_decoder( instruction_out, 
@@ -132,4 +157,3 @@ module setval(instruction_out,opcode,op,ALUop,imm5,imm8,shift,Rn,Rd,Rm);
     endcase
 end
 endmodule
-
