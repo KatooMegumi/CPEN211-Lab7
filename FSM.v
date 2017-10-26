@@ -1,8 +1,9 @@
-module FSM(clk, reset, s, w, opcode, op, nsel,loada,loadb,loadc,vsel,write,loads,asel,bsel,reset_pc,load_pc,addr_sel,mem_cmd);
-  input clk, reset, s;
+module FSM(clk, reset, s, w, opcode, op, nsel,loada,loadb,loadc,vsel,write,loads,asel,bsel,reset_pc,load_pc,addr_sel,mem_cmd,load_ir);
+  input clk, reset, s; 
   input [2:0] opcode;
   input [1:0] op;
   output w;
+  output reg load_ir; //not sure what this goes to 
   output reg [2:0] nsel;
   output reg loada,loadb,loadc,loads,write,asel,bsel;
   output reg load_pc,reset_pc,addr_sel; //Lab7 addition going to program counter
@@ -13,19 +14,27 @@ module FSM(clk, reset, s, w, opcode, op, nsel,loada,loadb,loadc,vsel,write,loads
   reg [2:0] next_state;
   
   //State encoding for the FSM circuit 
-  `define S0 3'b000
+  `define S0 3'b000 //Reset State 
   `define S1 3'b001
   `define S2 3'b010
   `define S3 3'b011
   `define S4 3'b100
+   //New states for Lab 7
+  `define IF1 3'b101
+  `define IF2 3'b110
+  `define UpdatePC 3'b111
+  //Defining m_cmd
+  `define M_NONE 2'b00
+  `define M_READ 2'b01
+  `define M_WRITE 2'b10
 
   assign w = load_s ? 1'b0:1'b1; //reset_state is 1 when reset is pressed and stays 1 until s is pressed
   assign state =  reset ? `S0:next_state;
   //Check reset state 
   always @(posedge clk) begin
     casex({reset,w,s,opcode,op,state})
-	11'b1xxxxxxxxxx: {load_s, nsel, next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel} 
-				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0}; //reset!
+	11'b1xxxxxxxxxx: {load_s, nsel, next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel,reset_pc,load_pc,addr_sel,mem_cmd,load_ir} 
+				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0,1'b1,1'b1,1'b0,`M_NONE,1'b0}; //reset!
 	{8'bx10xxxxx,`S0}: {load_s,nsel,next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel}
 				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0}; //keep waiting until s is set to 1 (reset state)
 	{8'bx1111010,`S0}: {load_s, nsel, next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel} 
@@ -76,8 +85,8 @@ module FSM(clk, reset, s, w, opcode, op, nsel,loada,loadb,loadc,vsel,write,loads
 				= {1'b1,3'b010,`S3,1'b0,1'b0,1'b0,2'b00,1'b1,1'b0,1'b0,1'b0}; //Place that value into Rd
 	{8'b00x10111,`S3}: {load_s,nsel,next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel}
 				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0}; //go back to reset state
-	default: {load_s,nsel,next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel}
-				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0}; //default sends it back to reset state
+	default: {load_s,nsel,next_state,loada,loadb,loadc,vsel,write,loads,asel,bsel,reset_pc,load_pc,addr_sel,mem_cmd,load_ir}
+				= {1'b0,3'b000,`S0,1'b0,1'b0,1'b0,2'b00,1'b0,1'b0,1'b0,1'b0,1'b1,1'b1,1'b0,`M_NONE,1'b0}; //default sends it back to reset state
    endcase
   end
 endmodule 
