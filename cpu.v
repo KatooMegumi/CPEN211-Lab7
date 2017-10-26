@@ -1,12 +1,12 @@
-module cpu(clk,reset,s,load,in,out,N,V,Z,w);
+module cpu(clk,reset,load,in,out,N,V,Z);
 
-  input clk, reset, s, load; //load_ir
+  input clk, reset, load; //load_ir
   input [15:0] in; //read_data and mdata 
 
   output [15:0] out; //datapath_out
   output [1:0] mem_cmd;
   output [8:0] mem_addr;
-  output N, V, Z, w; //?
+  output N, V, Z; //?
   output [7:0] PC; //?
 
 //lab 6 cpu wires
