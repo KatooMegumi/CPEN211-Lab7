@@ -1,8 +1,8 @@
-module cpu(clk,reset,s,load,in,out,N,V,Z,w);
-  input clk, reset, s, load;
+module cpu(clk,reset,load,in,out,N,V,Z);
+  input clk, reset, load;
   input [15:0] in;
   output [15:0] out;
-  output N, V, Z, w;
+  output N, V, Z;
 
   wire [15:0] instruction_out;
   wire loada,loadb,loads,loadc,write,asel,bsel;
