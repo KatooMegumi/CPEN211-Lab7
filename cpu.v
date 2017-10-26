@@ -1,7 +1,10 @@
 module cpu(clk,reset,s,load,in,out,N,V,Z,w);
   input clk, reset, s, load;
   input [15:0] in;
-  output [15:0] out;
+  output [15:0] out;//output from datapath
+  output [15:0] read_data;
+  output [1:0] mem_cmd;
+  output [8:0] mem_addr;
   output N, V, Z, w;
 
   wire [15:0] instruction_out;
@@ -11,9 +14,8 @@ module cpu(clk,reset,s,load,in,out,N,V,Z,w);
   wire [1:0] op, ALUop, shift, vsel;
   wire [2:0] opcode, readnum, writenum, nsel;  
   wire [15:0] sximm5, sximm8; 
-  //The following two wires are temp. set to 0, will be changed in Lab 7/8
-  wire [15:0] mdata = 16'b0;
-  wire [7:0] PC = 8'b0;
+  output [15:0] mdata; //output from datapath
+  output [7:0] PC; //output from datapath
 
   vDFFE #(16) instruct_reg(clk, load , in, instruction_out); //instruction register 
  
@@ -132,4 +134,3 @@ module setval(instruction_out,opcode,op,ALUop,imm5,imm8,shift,Rn,Rd,Rm);
     endcase
 end
 endmodule
-
