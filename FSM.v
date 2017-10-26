@@ -4,8 +4,10 @@ module FSM(clk, reset, s, w, opcode, op, nsel,loada,loadb,loadc,vsel,write,loads
   input [1:0] op;
   output w;
   output reg [2:0] nsel;
-  output reg loada,loadb,loadc,loads,write,asel,bsel,load_pc,reset_pc,addr_sel;
-  output reg [1:0] vsel, mem_cmd; 
+  output reg loada,loadb,loadc,loads,write,asel,bsel;
+  output reg load_pc,reset_pc,addr_sel; //Lab7 addition going to program counter
+  output reg [1:0] vsel;
+  output reg [1:0] mem_cmd; //Lab 7 addition going into RAM 
   wire [2:0] state;
   reg load_s;
   reg [2:0] next_state;
